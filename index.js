@@ -65,31 +65,12 @@ async function getRacksByPod(pod) {
 }
 
 async function getDevicesBySerial(serial) {
-  const response = await axios.get(`https://api.meraki.com/api/v0/devices/${serial}/clients?timespan=86400`, { headers: { 'X-Cisco-Meraki-API-Key': ciscoMerakiApiKey }})
-    // Handle errors
-    // https://axios-http.com/docs/handling_errors
-    .catch(function (error) {
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-        return error.response.data
-      } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
-        return
-      } else {
-        // Something happened in setting up the request that triggered an Error
-        console.log('Error', error.message);
-        return
-      }
-    });
-
-  return response.data
+  try {
+    const response = await axios.get(`https://api.meraki.com/api/v0/devices/${serial}/clients?timespan=86400`, { headers: { 'X-Cisco-Meraki-API-Key': ciscoMerakiApiKey }})
+    return response.data
+  } catch(error) {
+    console.log(error)
+  }
 }
 
 function transformClientsRespose(data) {
