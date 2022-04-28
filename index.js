@@ -19,10 +19,11 @@ app.use(function(req, res, next) {
 });
 
 app.listen(port, () => {
-  console.log('\x1b[32m%s\x1b[0m', `[INFO] Server started. Listening on port ${port}`)
-  console.log(`[INFO] Loading data...`)
+  console.log('\x1b[36m%s\x1b[0m', `[INFO] Barista Mocha Server 🐧`)
+  console.log('\x1b[36m%s\x1b[0m', `[INFO] Server started. Listening on port ${port}`)
+  console.log('\x1b[36m%s\x1b[0m', `[INFO] Loading data...`)
   loadSwitches()
-  console.log(`[INFO] Loading switches...`)
+  console.log('\x1b[36m%s\x1b[0m', `[INFO] Loading switches...`)
   loadData()
 })
 
@@ -31,14 +32,14 @@ app.listen(port, () => {
  */
 
 app.get('/devices/:serial', async (req, res) => {
-  console.log(`[GET] /devices/${req.params.serial}`)
+  console.log('\x1b[32m%s\x1b[0m', `[GET] /devices/${req.params.serial}`)
   await sleep(1000);
   const data = await getDevicesBySerial(req.params.serial)
   res.send(transformClientsRespose(data))
 })
 
 app.get('/racks/:pod', async (req, res) => {
-  console.log(`[GET] /racks/${req.params.pod}`)
+  console.log('\x1b[32m%s\x1b[0m', `[GET] /racks/${req.params.pod}`)
   const racks = await getRacksByPod(req.params.pod)
   res.send(racks)
 })
@@ -49,12 +50,12 @@ app.get('/racks/:pod', async (req, res) => {
 
 async function loadData() {
   uData = await csv().fromFile(dataCsvFilePath)
-  console.log(`[INFO] Data loaded. Length: ${uData.length}`)
+  console.log('\x1b[36m%s\x1b[0m', `[INFO] Data loaded. Length: ${uData.length}`)
 }
 
 async function loadSwitches() {
   uSwitches = await csv().fromFile(switchesCsvFilePath)
-  console.log(`[INFO] Switches loaded. Length: ${uSwitches.length}`)
+  console.log('\x1b[36m%s\x1b[0m', `[INFO] Switches loaded. Length: ${uSwitches.length}`)
 }
 
 async function getRacksByPod(pod) {
@@ -78,8 +79,14 @@ function transformClientsRespose(data) {
     const found = uData.find(item => item.mac_address==element.mac)
     // foundSplit = found.location.split('-')
     // element.location = { pod: foundSplit[2], shelf: foundSplit[3], slot: foundSplit[4] }
-    element.code = found.code
-    element.port = found.port
+    if (found) {
+      element.code = found.code
+      element.port = found.port
+    } else {
+      console.log('\x1b[33m%s\x1b[0m', `[WARN] Device with MAC address ${element.mac} not found. Please check data.csv`)
+      element.code = 'N/A'
+      element.port = 'N/A'
+    }
   });
   return data
 }
