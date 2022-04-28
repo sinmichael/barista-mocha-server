@@ -28,8 +28,8 @@ app.listen(port, () => {
 })
 
 /**
- * API Endpoints
- */
+* API Endpoints
+*/
 
 app.get('/devices/:serial', async (req, res) => {
   console.log('\x1b[32m%s\x1b[0m', `[GET] /devices/${req.params.serial}`)
@@ -45,8 +45,8 @@ app.get('/racks/:pod', async (req, res) => {
 })
 
 /**
- * Functions
- */
+* Functions
+*/
 
 async function loadData() {
   uData = await csv().fromFile(dataCsvFilePath)
@@ -75,20 +75,23 @@ async function getDevicesBySerial(serial) {
 }
 
 function transformClientsRespose(data) {
-  data.forEach(element => {
-    const found = uData.find(item => item.mac_address==element.mac)
-    // foundSplit = found.location.split('-')
-    // element.location = { pod: foundSplit[2], shelf: foundSplit[3], slot: foundSplit[4] }
-    if (found) {
-      element.code = found.code
-      element.port = found.port
-    } else {
-      console.log('\x1b[33m%s\x1b[0m', `[WARN] Device with MAC address ${element.mac} not found. Please check data.csv`)
-      element.code = 'N/A'
-      element.port = 'N/A'
-    }
-  });
-  return data
+  try {
+    data.forEach(element => {
+      const found = uData.find(item => item.mac_address==element.mac)
+      // foundSplit = found.location.split('-')
+      // element.location = { pod: foundSplit[2], shelf: foundSplit[3], slot: foundSplit[4] }
+        element.port = element.switchport
+      if (found) {
+        element.code = found.code
+      } else {
+        console.log('\x1b[33m%s\x1b[0m', `[WARN] Device with MAC address ${element.mac} not found. Please check data.csv`)
+        element.code = 'N/A'
+      }
+    });
+    return data
+  } catch(error) {
+    console.log('\x1b[31m%s\x1b[0m', `${error}`)
+  }
 }
 
 function sleep(ms) {
