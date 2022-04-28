@@ -26,16 +26,16 @@ app.listen(port, () => {
   loadData()
 })
 
+/**
+ * API Endpoints
+ */
+
 app.get('/devices/:serial', async (req, res) => {
   console.log(`[GET] /devices/${req.params.serial}`)
   await sleep(1000);
   const data = await getDevicesBySerial(req.params.serial)
   res.send(transformClientsRespose(data))
 })
-
-/**
- * API Endpoints
- */
 
 app.get('/racks/:pod', async (req, res) => {
   console.log(`[GET] /racks/${req.params.pod}`)
@@ -76,8 +76,8 @@ async function getDevicesBySerial(serial) {
 function transformClientsRespose(data) {
   data.forEach(element => {
     const found = uData.find(item => item.mac_address==element.mac)
-    foundSplit = found.location.split('-')
-    element.location = { pod: foundSplit[2], shelf: foundSplit[3], slot: foundSplit[4] }
+    // foundSplit = found.location.split('-')
+    // element.location = { pod: foundSplit[2], shelf: foundSplit[3], slot: foundSplit[4] }
     element.code = found.code
     element.port = found.port
   });
