@@ -62,6 +62,7 @@ async function getRacksByPod(pod) {
   const found = uSwitches.filter(item => item.pod==pod)
   // Limit to 1 item
   // return found.splice(0, 1)
+  console.log(found);
   return found
 }
 
@@ -70,11 +71,19 @@ async function getDevicesBySerial(serial) {
     const response = await axios.get(`https://api.meraki.com/api/v0/devices/${serial}/clients?timespan=86400`, { headers: { 'X-Cisco-Meraki-API-Key': ciscoMerakiApiKey }})
     return response.data
   } catch(error) {
-    console.log(error)
+    // console.log(error)
   }
 }
 
 function transformClientsRespose(data) {
+  let a1047count = 0;
+  let t17count = 0;
+  let t19count = 0;
+  let t17pcount = 0;
+  let s17pcount = 0;
+  let s19count = 0;
+  let nacount = 0;
+
   try {
     data.forEach(element => {
       const found = uData.find(item => item.mac_address==element.mac)
@@ -87,8 +96,24 @@ function transformClientsRespose(data) {
         console.log('\x1b[33m%s\x1b[0m', `[WARN] Device with MAC address ${element.mac} not found. Please check data.csv`)
         element.code = 'N/A'
       }
+
+      if (element.code === 'A1047')
+        a1047count++;
+      if (element.code === 'T17')
+        t17count++;
+      if (element.code === 'T17+')
+        t17pcount++;
+      if (element.code === 'T19')
+        t19count++;
+      if (element.code === 'S17+')
+        s17pcount++;
+      if (element.code === 'S19')
+        s19count++;
+      if (element.code === 'N/A')
+        nacount++;
+
     });
-    return data
+    return { data: data, stats: { a1047count: a1047count, t17count: t17count, t17pcount: t17pcount, t19count: t19count, s17pcount: s17pcount, s19count: s19count, nacount: nacount } }
   } catch(error) {
     console.log('\x1b[31m%s\x1b[0m', `${error}`)
   }
